@@ -1,6 +1,8 @@
 # Class Manager
 
-A C console program that records each student's ID, name and Korean and English scores, then prints them sorted by a chosen field along with the class average and standard deviation. Menu output, input validation and string checks are split into separate modules by file. A school assignment.
+[한국어](README.ko.md)
+
+A C console program that records each student's ID, name and Korean and English scores, then prints them sorted by a chosen field along with the class average and standard deviation. Menu output, input validation and string checks are split into separate modules, one per file. A school assignment.
 
 <p>
   <img src="docs/screenshots/screenshot-1.png" width="480" alt="Main menu">
@@ -9,7 +11,7 @@ A C console program that records each student's ID, name and Korean and English 
 
 ## How to use
 
-Download from Releases and run it. Type a command after `명령어 :` and press Enter. The program's text is in Korean.
+Download the program from Releases and run it. Type a command after `명령어 :` and press Enter. The program's text is in Korean.
 
 | Screen | Command | Action |
 |---|---|---|
@@ -22,16 +24,16 @@ Download from Releases and run it. Type a command after `명령어 :` and press 
 
 | Field | Rule |
 |---|---|
-| Student ID | An integer from 100 to 999 that is not already registered |
+| Student ID | An integer from 100 to 999. It must not match an ID that is already registered |
 | Name | 1 to 5 lowercase English letters. The first letter is stored capitalized |
 | Korean, English score | An integer from 0 to 100 |
 
-Input that breaks a rule is rejected with the reason and asked for again. Up to 256 students can be registered, and the scores are kept in memory while the program runs. After a sort field is chosen on the summary screen, the program asks for the sort direction, which is typed in Korean as `오름차순` (ascending) or `내림차순` (descending). The averages and standard deviations of the Korean and English scores are printed below the table.
+If an input breaks a rule, the program shows the reason and asks for it again. Up to 256 students can be registered, and the scores are kept in memory while the program runs. When you pick a sort field on the summary screen, the program asks for the sort direction. Type it in Korean: `오름차순` (ascending) or `내림차순` (descending). The averages and standard deviations of the Korean and English scores are printed below the table.
 
 
 ## How it works
 
-**Screens are stacked in a line buffer and printed at once.** `MenuManager` uses a 128-line character array as a list of lines, and the first line that starts with a null character marks the end. Every screen change clears it with `menuClear`, stacks lines with `menuAdd`, and `menuPrint` prints them with a left margin. The main loop interprets commands according to the current screen number (`RoomMain`, `RoomPrint`, `RoomNewStudent`), and when the number becomes `none`, `changeMenu` returns `false` and the loop ends.
+**Each screen is collected in a line buffer and printed all at once.** `MenuManager` uses a 128-line character array as a list of lines, and a line that starts with a null character marks the end of the list. On every screen change, `menuClear` empties the buffer, `menuAdd` adds the lines, and `menuPrint` prints them with a left margin. The main loop interprets commands according to the current screen number (`RoomMain`, `RoomPrint`, `RoomNewStudent`), and when the number becomes `none`, `changeMenu` returns `false` and the loop ends.
 
 ```c
 while (changeMenu(currentMenuIndex, currentMenu))
@@ -45,11 +47,11 @@ while (changeMenu(currentMenuIndex, currentMenu))
 }
 ```
 
-**Input validation has two layers.** `StringExt` checks whether a string consists only of digits (a leading sign is allowed), only uppercase letters or only lowercase letters. `InputExt` reads a line with `gets_s` and keeps printing an error message and reading again until the check passes. The ranges of the ID and scores and the length of the name are checked once more above that, in `Main.c`. `true`, `false` and `null`, which C lacks, and `none` for an empty value are defined as macros in `Boolean.h` and `Null.h`.
+**Input validation has two layers.** `StringExt` checks whether a string consists only of digits (a leading sign is allowed), only uppercase letters or only lowercase letters. `InputExt` reads a line with `gets_s` and keeps printing an error message and reading again until the check passes. `Main.c`, one level above them, checks the ID and score ranges and the name length once more. `Boolean.h` and `Null.h` define macros for `true`, `false` and `null`, which C does not have, and for `none`, which means an empty value.
 
-**Sorting swaps four arrays together.** Student data sits in four arrays for ID, name, Korean and English at the same index. A pointer picks the array to sort by (names are compared with `strcmp`), the i-th element is compared with each element after it, and when the order is wrong the two slots are swapped in all four arrays. Integers are swapped with an XOR swap.
+**Sorting swaps four arrays together.** Each student's data is stored at the same index in four arrays: ID, name, Korean and English. A pointer selects the array to sort by (names are compared with `strcmp`). The i-th element is compared with each element after it in turn, and when two are out of order, those two slots are swapped in all four arrays. Integers use an XOR swap.
 
-**The standard deviation uses a hand-written power function.** A recursive `power` adds up the squared deviations, the sum is divided by the number of students, and `sqrt` takes the square root.
+**The standard deviation uses a hand-written power function.** A recursive `power` function squares each deviation. The squares are summed and divided by the number of students, and `sqrt` takes the square root.
 
 
 ## Files
